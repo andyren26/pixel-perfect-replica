@@ -1,7 +1,4 @@
-import { useEffect } from "react";
 import { Link, useRouteError } from "react-router";
-
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 export function NotFoundComponent() {
   return (
@@ -28,9 +25,6 @@ export function NotFoundComponent() {
 export function ErrorComponent() {
   const error = useRouteError();
   console.error(error);
-  useEffect(() => {
-    reportLovableError(error, { boundary: "root_error_element" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
