@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/barbers")({
 function BarbersPage() {
   const { user } = Route.useRouteContext();
   const navigate = useNavigate();
-  const isShop = user.user_metadata?.role === "shop";
+  const isShop = user.user_metadata?.["role"] === "shop";
 
   async function signOut() {
     await supabase.auth.signOut();
