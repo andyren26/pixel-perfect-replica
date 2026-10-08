@@ -38,12 +38,10 @@ grant execute on function public.is_admin() to authenticated;
 
 -- Read: each user sees only their own row (incl. their own bank_account_*);
 -- admins see every row. Nobody else can read anyone's bank details.
-drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own" on public.profiles
   for select to authenticated
   using ((select auth.uid()) = id);
 
-drop policy if exists "profiles_select_admin" on public.profiles;
 create policy "profiles_select_admin" on public.profiles
   for select to authenticated
   using ((select public.is_admin()));
@@ -51,7 +49,6 @@ create policy "profiles_select_admin" on public.profiles
 -- Update: users may edit their own row, but only the payout columns —
 -- role/email/id are not client-writable (column grants below), so nobody
 -- can promote themselves to shop/admin from the browser.
-drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles
   for update to authenticated
   using ((select auth.uid()) = id)
@@ -74,7 +71,6 @@ begin
 end;
 $$;
 
-drop trigger if exists profiles_set_updated_at on public.profiles;
 create trigger profiles_set_updated_at
   before update on public.profiles
   for each row execute function public.set_updated_at();
@@ -104,7 +100,6 @@ $$;
 
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
-drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
