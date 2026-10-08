@@ -1,22 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router";
 import { Search, BadgeCheck, Zap, ShieldCheck, Star } from "lucide-react";
 import heroLeft from "@/assets/hero-left.jpg";
 import heroRight from "@/assets/hero-right.jpg";
 import barbersImg from "@/assets/barbers.jpg";
+import { useHead } from "@/hooks/use-head";
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Barberly — Style with Confident Hair" },
-      { name: "description", content: "Find a verified barber near you and book an appointment in a few taps." },
-      { property: "og:title", content: "Barberly — Style with Confident Hair" },
-      { property: "og:description", content: "Find a verified barber near you and book an appointment in a few taps." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Index,
-});
+const head = [
+  { title: "Barberly — Style with Confident Hair" },
+  { name: "description", content: "Find a verified barber near you and book an appointment in a few taps." },
+  { property: "og:title", content: "Barberly — Style with Confident Hair" },
+  { property: "og:description", content: "Find a verified barber near you and book an appointment in a few taps." },
+  { property: "og:type", content: "website" },
+  { name: "twitter:card", content: "summary_large_image" },
+];
 
 const chips = ["All", "Cut", "Color", "Perm", "Beard"];
 const logos = ["MAISON", "Atelier Nº5", "CROWN & CO", "Loft Salon", "BLADE", "Ivory"];
@@ -33,7 +29,8 @@ const barbers = [
   { name: "Sofia Lin", shop: "Ivory Hair · Songshan", services: ["Color", "Perm"], rating: 5.0, reviews: 129, price: 40, pos: "100% 100%" },
 ];
 
-function Index() {
+export default function Index() {
+  useHead(head);
   return (
     <div className="min-h-screen bg-background">
       <nav className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-5">
@@ -42,7 +39,7 @@ function Index() {
           <Search className="h-4 w-4 text-muted-foreground" />
           <input placeholder="Search" className="w-full bg-transparent text-sm outline-none" />
         </div>
-        <Link to="/login" className="ml-auto rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90 md:ml-0">
+        <Link to="/sign-in" className="ml-auto rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90 md:ml-0">
           Login
         </Link>
       </nav>

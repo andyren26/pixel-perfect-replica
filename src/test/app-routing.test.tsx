@@ -1,17 +1,31 @@
-import { QueryClient } from "@tanstack/react-query";
-import { createRouter, rootRouteId } from "@tanstack/react-router";
-import { describe, expect, it } from "vitest";
+import { matchRoutes } from "react-router";
+import { describe, expect, it, vi } from "vitest";
 
-import { routeTree } from "@/routeTree.gen";
+vi.mock("@/integrations/supabase/client", () => ({ supabase: {} }));
 
-// Match routes without running loaders or rendering: loaders may need a server or
-// network the test run lacks, and jsdom never loads the stylesheets React waits on.
+import { routes } from "@/router";
+
+// Match routes without running loaders or rendering: loaders need Supabase,
+// which the test run lacks.
+function leafPath(url: string) {
+  const matches = matchRoutes(routes, url) ?? [];
+  const leaf = matches.at(-1)?.route;
+  return leaf?.index ? "(index)" : leaf?.path;
+}
+
 describe("App routing", () => {
-  it("matches a page for / instead of falling back to not found", () => {
-    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+  it.each([
+    ["/", "(index)"],
+    ["/app", "app"],
+    ["/sign-in", "sign-in"],
+    ["/sign-up", "sign-up"],
+    ["/login", "login"],
+    ["/barbers", "barbers"],
+  ])("matches a page for %s", (url, expected) => {
+    expect(leafPath(url)).toBe(expected);
+  });
 
-    const matches = router.matchRoutes("/");
-
-    expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
+  it("falls back to not found for unknown paths", () => {
+    expect(leafPath("/nope")).toBe("*");
   });
 });

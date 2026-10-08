@@ -1,28 +1,27 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useLoaderData, useNavigate } from "react-router";
+import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { useHead } from "@/hooks/use-head";
 
-export const Route = createFileRoute("/_authenticated/barbers")({
-  head: () => ({
-    meta: [
-      { title: "Your Barberly" },
-      { name: "description", content: "Your Barberly home." },
-      { property: "og:title", content: "Your Barberly" },
-      { property: "og:description", content: "Your Barberly home." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  component: BarbersPage,
-});
+const head = [
+  { title: "Your Barberly" },
+  { name: "description", content: "Your Barberly home." },
+  { property: "og:title", content: "Your Barberly" },
+  { property: "og:description", content: "Your Barberly home." },
+  { property: "og:type", content: "website" },
+  { name: "twitter:card", content: "summary" },
+];
 
-function BarbersPage() {
-  const { user } = Route.useRouteContext();
+// Signed-in home at /app. The route loader (src/router.tsx) guarantees a user.
+export default function AppHome() {
+  useHead(head);
+  const { user } = useLoaderData() as { user: User };
   const navigate = useNavigate();
   const isShop = user.user_metadata?.["role"] === "shop";
 
   async function signOut() {
     await supabase.auth.signOut();
-    navigate({ to: "/login", replace: true });
+    navigate("/sign-in", { replace: true });
   }
 
   return (

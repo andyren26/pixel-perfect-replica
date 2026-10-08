@@ -22,3 +22,25 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Architecture
+
+Plain **Vite + React** single-page app with **React Router** for client-side routing.
+There is no server rendering — `npm run build` outputs a static site to `dist/`.
+
+| Path | Page |
+| --- | --- |
+| `/` | Landing page |
+| `/sign-in` | Sign in |
+| `/sign-up` | Create account (customer or barber) |
+| `/app` | Signed-in home (redirects to `/sign-in` when signed out) |
+
+Routes live in `src/router.tsx`; pages in `src/pages/`.
+
+Supabase is configured through `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (see `.env`).
+
+## Deploying to Vercel
+
+Import the repo in Vercel — the Vite preset is detected automatically. `vercel.json`
+sets the output directory to `dist/` and rewrites every path to `index.html`, so deep
+links like `/app` load the SPA and React Router resolves them in the browser.

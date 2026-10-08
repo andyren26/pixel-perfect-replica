@@ -1,24 +1,25 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useHead } from "@/hooks/use-head";
 
-export const Route = createFileRoute("/login")({
-  head: () => ({
-    meta: [
-      { title: "Sign in — Barberly" },
-      { name: "description", content: "Sign in or create your Barberly account as a customer or barber." },
-      { property: "og:title", content: "Sign in — Barberly" },
-      { property: "og:description", content: "Sign in or create your Barberly account." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  component: LoginPage,
-});
+const head = [
+  { title: "Sign in — Barberly" },
+  { name: "description", content: "Sign in or create your Barberly account as a customer or barber." },
+  { property: "og:title", content: "Sign in — Barberly" },
+  { property: "og:description", content: "Sign in or create your Barberly account." },
+  { property: "og:type", content: "website" },
+  { name: "twitter:card", content: "summary" },
+];
 
-function LoginPage() {
+// Rendered for both /sign-in and /sign-up; the URL decides the mode.
+export default function AuthPage() {
+  useHead(head);
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const { pathname } = useLocation();
+  const mode: "signin" | "signup" = pathname.replace(/\/+$/, "") === "/sign-up" ? "signup" : "signin";
+  const setMode = (next: "signin" | "signup") =>
+    navigate(next === "signup" ? "/sign-up" : "/sign-in", { replace: true });
   const [role, setRole] = useState<"customer" | "shop">("customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +28,7 @@ function LoginPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/barbers", replace: true });
+      if (data.session) navigate("/app", { replace: true });
     });
   }, [navigate]);
 
@@ -45,7 +46,7 @@ function LoginPage() {
         : await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (res.error) return setError(res.error.message);
-    if (res.data.session) navigate({ to: "/barbers", replace: true });
+    if (res.data.session) navigate("/app", { replace: true });
   }
 
   return (
