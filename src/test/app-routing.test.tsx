@@ -19,6 +19,8 @@ describe("App routing", () => {
     ["/app", "app"],
     ["/sign-in", "sign-in"],
     ["/sign-up", "sign-up"],
+    ["/shop", "shop"],
+    ["/shop/bookings", "shop/bookings"],
     ["/login", "login"],
     ["/barbers", "barbers"],
   ])("matches a page for %s", (url, expected) => {

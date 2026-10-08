@@ -1,7 +1,10 @@
-import { Link, useLoaderData, useNavigate } from "react-router";
-import type { User } from "@supabase/supabase-js";
+import { useState } from "react";
+import { useLoaderData, useNavigate } from "react-router";
+
+import AppHeader from "@/components/AppHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useHead } from "@/hooks/use-head";
+import type { Session } from "@/lib/profile";
 
 const head = [
   { title: "Your Barberly" },
@@ -12,41 +15,44 @@ const head = [
   { name: "twitter:card", content: "summary" },
 ];
 
-// Signed-in home at /app. The route loader (src/router.tsx) guarantees a user.
+// Customer home at /app. Shops are redirected to /shop by the route loader.
 export default function AppHome() {
   useHead(head);
-  const { user } = useLoaderData() as { user: User };
+  const { user, profile } = useLoaderData() as Session;
   const navigate = useNavigate();
-  const isShop = user.user_metadata?.["role"] === "shop";
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function signOut() {
-    await supabase.auth.signOut();
-    navigate("/sign-in", { replace: true });
+  async function becomeShop() {
+    setBusy(true);
+    setError(null);
+    const { data, error } = await supabase.rpc("become_shop");
+    setBusy(false);
+    if (error || data !== "shop")
+      return setError(error?.message ?? "Could not upgrade this account.");
+    navigate("/shop", { replace: true });
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="mx-auto flex max-w-7xl items-center gap-3 px-6 py-5">
-        <Link to="/" className="font-serif text-3xl font-semibold">Barberly</Link>
-        <div className="ml-auto flex items-center gap-3 text-sm">
-          <span className="hidden sm:inline">Hi {user.email}</span>
-          {isShop && <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">barber</span>}
-          <button onClick={signOut} className="rounded-full bg-primary px-5 py-2 text-primary-foreground hover:opacity-90">Sign Out</button>
-        </div>
-      </header>
+      <AppHeader email={user.email} profile={profile}>
+        {profile.role === "customer" && (
+          <button
+            onClick={becomeShop}
+            disabled={busy}
+            className="rounded-full border border-primary px-5 py-2 font-medium transition hover:bg-secondary disabled:opacity-60"
+          >
+            {busy ? "Please wait…" : "開店 / Become a shop"}
+          </button>
+        )}
+      </AppHeader>
       <main className="mx-auto max-w-3xl px-6 py-24 text-center animate-fade-up">
+        {error && <p className="mb-6 text-sm text-destructive">{error}</p>}
         <div className="rounded-3xl bg-cream p-12">
-          {isShop ? (
-            <>
-              <h1 className="text-4xl">理髮師後台即將上線 — 下一個里程碑會加上個人檔案、服務項目與排班管理。</h1>
-              <p className="mt-4 text-muted-foreground">Your barber dashboard is coming soon — profile, services & schedule arrive in the next milestone.</p>
-            </>
-          ) : (
-            <>
-              <h1 className="text-4xl">附近的理髮師即將上線 — 下一個里程碑會加上瀏覽與預約功能。</h1>
-              <p className="mt-4 text-muted-foreground">Barbers near you are coming soon — browse & booking arrive in the next milestone.</p>
-            </>
-          )}
+          <h1 className="text-4xl">附近的理髮師即將上線 — 下一個里程碑會加上瀏覽與預約功能。</h1>
+          <p className="mt-4 text-muted-foreground">
+            Barbers near you are coming soon — browse & booking arrive in the next milestone.
+          </p>
         </div>
       </main>
     </div>

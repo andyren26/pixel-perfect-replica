@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useHead } from "@/hooks/use-head";
+import { getSession, homePathForRole } from "@/lib/profile";
 
 const head = [
   { title: "Sign in — Barberly" },
@@ -28,9 +29,16 @@ export default function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate("/app", { replace: true });
+      if (data.session) goHome();
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Land on the page for this account's role (read from profiles.role).
+  async function goHome() {
+    const session = await getSession();
+    navigate(session ? homePathForRole(session.profile.role) : "/app", { replace: true });
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,12 +49,12 @@ export default function AuthPage() {
         ? await supabase.auth.signUp({
             email,
             password,
-            options: { emailRedirectTo: window.location.origin, data: { role } },
+            options: { emailRedirectTo: `${window.location.origin}/sign-in`, data: { role } },
           })
         : await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (res.error) return setError(res.error.message);
-    if (res.data.session) navigate("/app", { replace: true });
+    if (res.data.session) await goHome();
   }
 
   return (

@@ -1,17 +1,32 @@
 import { Navigate, Outlet, createBrowserRouter, redirect, type RouteObject } from "react-router";
 
-import { supabase } from "@/integrations/supabase/client";
 import Index from "@/pages/Index";
 import AuthPage from "@/pages/Auth";
 import AppHome from "@/pages/AppHome";
+import ShopOnboarding from "@/pages/ShopOnboarding";
+import ShopBookings from "@/pages/ShopBookings";
 import { ErrorComponent, NotFoundComponent } from "@/pages/RootErrors";
+import { getSession } from "@/lib/profile";
 
-// Signed-in area guard: runs before /app renders, mirrors the old
-// `_authenticated` beforeLoad (getUser → redirect to sign-in if missing).
-async function requireUser() {
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) throw redirect("/sign-in");
-  return { user: data.user };
+// Signed-in guard: user + their profiles row (role comes from profiles.role).
+async function requireSession() {
+  const session = await getSession();
+  if (!session) throw redirect("/sign-in");
+  return session;
+}
+
+// Customer home. A shop lands on its own dashboard instead.
+async function customerLoader() {
+  const session = await requireSession();
+  if (session.profile.role === "shop") throw redirect("/shop");
+  return session;
+}
+
+// Shop-only pages.
+async function shopLoader() {
+  const session = await requireSession();
+  if (session.profile.role !== "shop") throw redirect("/app");
+  return session;
 }
 
 export const routes: RouteObject[] = [
@@ -30,7 +45,9 @@ export const routes: RouteObject[] = [
           { path: "sign-up", element: null },
         ],
       },
-      { path: "app", loader: requireUser, element: <AppHome /> },
+      { path: "app", loader: customerLoader, element: <AppHome /> },
+      { path: "shop", loader: shopLoader, element: <ShopOnboarding /> },
+      { path: "shop/bookings", loader: shopLoader, element: <ShopBookings /> },
       // Old URLs from the TanStack version.
       { path: "login", element: <Navigate to="/sign-in" replace /> },
       { path: "barbers", element: <Navigate to="/app" replace /> },
