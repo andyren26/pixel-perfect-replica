@@ -83,6 +83,10 @@ export default async function handler(req: Req, res: ServerResponse) {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      // The platform collects into its OWN Stripe account (no merchant of record). New
+      // Stripe accounts turn Managed Payments on by default, which then rejects our
+      // dynamic price_data line item for having no product tax_code — so opt out here.
+      managed_payments: { enabled: false },
       line_items: [
         {
           price_data: {
