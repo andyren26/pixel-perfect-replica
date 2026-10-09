@@ -16,6 +16,7 @@ import {
   myBookingsKey,
   useMyBookings,
 } from "@/lib/booking";
+import { startCheckout } from "@/lib/checkout";
 import { errMessage } from "@/lib/errors";
 import { formatMoney, usePlatformSettings } from "@/lib/platform";
 import type { Session } from "@/lib/profile";
@@ -41,6 +42,19 @@ export default function MyBookings() {
   const { data: settings } = usePlatformSettings();
   const { data: bookings = [], isLoading, error } = useMyBookings(profile.id);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [payingId, setPayingId] = useState<string | null>(null);
+
+  // Resume payment for a booking that is still pending_payment (e.g. Checkout was closed).
+  async function pay(id: string) {
+    setCancelError(null);
+    setPayingId(id);
+    try {
+      await startCheckout(id);
+    } catch (e) {
+      setPayingId(null);
+      setCancelError(errMessage(e, "Could not start payment."));
+    }
+  }
 
   async function cancel(id: string) {
     setCancelError(null);
@@ -132,6 +146,16 @@ export default function MyBookings() {
                     <span className="text-xl font-semibold">
                       {formatMoney(b.price ?? 0, settings)}
                     </span>
+                    {status === "pending_payment" && b.id && (
+                      <button
+                        type="button"
+                        className={primaryBtn}
+                        disabled={payingId !== null}
+                        onClick={() => pay(b.id!)}
+                      >
+                        {payingId === b.id ? "前往付款中… / Redirecting…" : "付款 / Pay now"}
+                      </button>
+                    )}
                     {status === "pending_payment" && b.id && (
                       <ConfirmButton
                         label="取消預約 / Cancel"

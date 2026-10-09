@@ -12,6 +12,7 @@ import AuthPage from "@/pages/Auth";
 import Barbers from "@/pages/Barbers";
 import BarberDetail from "@/pages/BarberDetail";
 import MyBookings from "@/pages/MyBookings";
+import BookingSuccess from "@/pages/BookingSuccess";
 import ShopOnboarding from "@/pages/ShopOnboarding";
 import ShopBookings from "@/pages/ShopBookings";
 import { ErrorComponent, NotFoundComponent } from "@/pages/RootErrors";
@@ -68,6 +69,7 @@ export const routes: RouteObject[] = [
       { path: "barbers", loader: optionalSession, element: <Barbers /> },
       { path: "barbers/:id", loader: optionalSession, element: <BarberDetail /> },
       { path: "bookings", loader: customerLoader, element: <MyBookings /> },
+      { path: "bookings/success", loader: requireSession, element: <BookingSuccess /> },
       { path: "shop", loader: shopLoader, element: <ShopOnboarding /> },
       { path: "shop/bookings", loader: shopLoader, element: <ShopBookings /> },
       // Old URLs: the M0 customer placeholder and the TanStack-era login.

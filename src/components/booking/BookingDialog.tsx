@@ -20,6 +20,7 @@ import {
   type Service,
   type SlotWithHold,
 } from "@/lib/booking";
+import { startCheckout } from "@/lib/checkout";
 import { errMessage } from "@/lib/errors";
 import { formatMoney, usePlatformSettings } from "@/lib/platform";
 import { ghostBtn, primaryBtn } from "@/lib/ui";
@@ -36,9 +37,9 @@ type Props = {
   onBooked: () => void;
 };
 
-// The M1.2 booking pop-up: service -> date -> start slot -> Confirm.
+// The booking pop-up: service -> date -> start slot -> Confirm.
 // Confirm calls the create_booking RPC (1 pending_payment booking + N booking_slots
-// rows, atomically) and closes back onto the same /barbers/:id page. No payment yet.
+// rows, atomically), then sends the customer to Stripe Checkout to pay (M2.1).
 export default function BookingDialog({
   open,
   onOpenChange,
@@ -112,19 +113,28 @@ export default function BookingDialog({
     if (!service || !startId) return;
     setBusy(true);
     setError(null);
-    const { error } = await supabase.rpc("create_booking", {
+    // 1) Hold the slots: one pending_payment booking + N booking_slots rows (atomic RPC).
+    const { data: bookingId, error } = await supabase.rpc("create_booking", {
       p_service_id: service.id,
       p_start_slot_id: startId,
     });
-    setBusy(false);
-    if (error) {
+    if (error || !bookingId) {
+      setBusy(false);
       setError(errMessage(error, "Could not complete the booking."));
       onBooked(); // refresh availability: someone may have just taken these slots
       return;
     }
-    onOpenChange(false);
-    toast.success("預約成功！可在「我的預約」查看 / Booked — see My bookings.");
-    onBooked();
+    // 2) Pay now: go to Stripe Checkout. The webhook flips the booking to paid.
+    try {
+      await startCheckout(bookingId);
+    } catch (e) {
+      setBusy(false);
+      onOpenChange(false);
+      onBooked();
+      toast.error(
+        `${errMessage(e, "Could not start payment.")} 預約已保留，可到「我的預約」付款 / Your booking is held — pay from My bookings.`,
+      );
+    }
   }
 
   return (
@@ -246,7 +256,7 @@ export default function BookingDialog({
             <p className="mt-1 text-muted-foreground">
               {service.name} ·{" "}
               <strong className="text-foreground">{formatMoney(service.price, settings)}</strong>
-              <span className="ml-2 text-xs">（目前不需付款 / no payment yet）</span>
+              <span className="ml-2 text-xs">（確認後前往付款 / pay on the next step）</span>
             </p>
           </div>
         )}
@@ -273,7 +283,7 @@ export default function BookingDialog({
             disabled={!service || !startId || busy}
             onClick={confirm}
           >
-            {busy ? "預約中…" : "Confirm 確認預約"}
+            {busy ? "前往付款中… / Redirecting…" : "確認並付款 / Confirm & pay"}
           </button>
         </DialogFooter>
       </DialogContent>

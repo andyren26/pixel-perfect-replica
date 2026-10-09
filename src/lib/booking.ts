@@ -21,7 +21,7 @@ export const CATEGORY_LABEL: Record<string, string> = {
 };
 
 export const STATUS_LABEL: Record<string, string> = {
-  pending_payment: "已預約・待付款 / Booked",
+  pending_payment: "待付款 / Awaiting payment",
   paid: "已付款 / Paid",
   cancelled: "已取消 / Cancelled",
 };
