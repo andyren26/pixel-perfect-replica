@@ -14,6 +14,7 @@ export default function AppHeader({ email, profile, children }: Props) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const isShop = profile?.role === "shop";
   const isCustomer = profile?.role === "customer";
 
@@ -27,6 +28,7 @@ export default function AppHeader({ email, profile, children }: Props) {
     const { data, error } = await supabase.rpc("become_shop");
     setBusy(false);
     if (error || data !== "shop") {
+      setConfirming(false);
       toast.error(errMessage(error, "Could not upgrade this account."));
       return;
     }
@@ -72,15 +74,34 @@ export default function AppHeader({ email, profile, children }: Props) {
               <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">barber</span>
             )}
             {children}
-            {isCustomer && (
-              <button
-                onClick={becomeShop}
-                disabled={busy}
-                className="hidden rounded-full border border-primary px-5 py-2 font-medium transition hover:bg-secondary disabled:opacity-60 md:inline-block"
-              >
-                {busy ? "Please wait…" : "開店 / Become a shop"}
-              </button>
-            )}
+            {isCustomer &&
+              (confirming ? (
+                // Upgrading is one-way (there's no shop -> customer path), so ask first.
+                <span className="hidden items-center gap-1 rounded-full border border-primary py-1 pr-1 pl-4 md:inline-flex">
+                  <span>把這個帳號改成店家？</span>
+                  <button
+                    onClick={becomeShop}
+                    disabled={busy}
+                    className="rounded-full bg-primary px-4 py-1 font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+                  >
+                    {busy ? "Please wait…" : "確定開店"}
+                  </button>
+                  <button
+                    onClick={() => setConfirming(false)}
+                    disabled={busy}
+                    className="rounded-full px-3 py-1 text-muted-foreground hover:bg-secondary"
+                  >
+                    取消
+                  </button>
+                </span>
+              ) : (
+                <button
+                  onClick={() => setConfirming(true)}
+                  className="hidden rounded-full border border-primary px-5 py-2 font-medium transition hover:bg-secondary md:inline-block"
+                >
+                  開店 / Become a shop
+                </button>
+              ))}
             <button
               onClick={signOut}
               className="rounded-full bg-primary px-5 py-2 text-primary-foreground hover:opacity-90"
