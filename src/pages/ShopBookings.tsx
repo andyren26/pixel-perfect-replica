@@ -27,7 +27,7 @@ export default function ShopBookings() {
     <div className="min-h-screen bg-background">
       <AppHeader email={user.email} profile={profile} />
       <main className="mx-auto max-w-5xl space-y-8 px-6 pt-6 pb-24 animate-fade-up">
-        <div className="rounded-3xl bg-cream p-8 md:p-10">
+        <div className="hem rounded-3xl bg-cream p-8 md:p-10">
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">
             Shop · Bookings
           </p>

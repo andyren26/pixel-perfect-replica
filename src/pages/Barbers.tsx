@@ -40,7 +40,7 @@ export default function Barbers() {
     <div className="min-h-screen bg-background">
       <AppHeader email={session?.user.email} profile={session?.profile ?? null} />
       <main className="mx-auto max-w-7xl px-6 pt-4 pb-24 animate-fade-up">
-        <section className="rounded-3xl bg-cream px-6 py-10 text-center md:py-14">
+        <section className="hem rounded-3xl bg-cream px-6 py-10 text-center md:py-14">
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">
             Find your stylist
           </p>

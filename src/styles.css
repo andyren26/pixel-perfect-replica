@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-serif: "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Bodoni Moda", "Didot", Georgia, serif;
+  --font-sans: "Jost", system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -37,38 +37,52 @@
 }
 
 :root {
-  --radius: 1rem;
-  --background: oklch(0.99 0.004 85);
-  --foreground: oklch(0.2 0.01 60);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.01 60);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.01 60);
-  --primary: oklch(0.18 0.008 60);
-  --primary-foreground: oklch(0.98 0.006 85);
-  --secondary: oklch(0.95 0.018 80);
-  --secondary-foreground: oklch(0.25 0.01 60);
-  --muted: oklch(0.96 0.012 80);
-  --muted-foreground: oklch(0.5 0.02 65);
-  --accent: oklch(0.88 0.04 75);
-  --accent-foreground: oklch(0.22 0.01 60);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.91 0.015 80);
-  --input: oklch(0.91 0.015 80);
-  --ring: oklch(0.6 0.04 70);
-  --cream: oklch(0.965 0.02 82);
-  --sand: oklch(0.86 0.045 75);
+  /* Ivory & jet — taken from the reference photo: a bone-white studio wall,
+     a black feathered dress, black leather boots, warm skin, soft taupe shadow. */
+  --radius: 0.625rem;
+  --background: oklch(0.945 0.011 75); /* bone wall   #F1ECE5 */
+  --foreground: oklch(0.2 0.006 60); /* ink         #151311 */
+  --card: oklch(0.975 0.007 80); /* lifted ivory #F8F5F0 */
+  --card-foreground: oklch(0.2 0.006 60);
+  --popover: oklch(0.975 0.007 80);
+  --popover-foreground: oklch(0.2 0.006 60);
+  --primary: oklch(0.17 0.004 60); /* jet: dress & boots #0F0E0D */
+  --primary-foreground: oklch(0.975 0.007 80);
+  --secondary: oklch(0.91 0.012 72); /* wall in shade #E6DFD6 */
+  --secondary-foreground: oklch(0.22 0.006 60);
+  --muted: oklch(0.925 0.011 72);
+  --muted-foreground: oklch(0.5 0.016 60); /* taupe shadow #6F665D */
+  --accent: oklch(0.88 0.03 50); /* blush, the skin tone #E7D4C7 */
+  --accent-foreground: oklch(0.22 0.006 60);
+  --destructive: oklch(0.5 0.17 25);
+  --destructive-foreground: oklch(0.975 0.007 80);
+  --border: oklch(0.86 0.013 70);
+  --input: oklch(0.84 0.014 70);
+  --ring: oklch(0.17 0.004 60);
+  --cream: oklch(0.915 0.014 72); /* panels: the wall where the light falls off */
+  --sand: oklch(0.82 0.02 65);
 }
 
 @layer base {
   * { border-color: var(--color-border); }
+  html { background-color: var(--color-background); }
   body {
-    background-color: var(--color-background);
+    /* Side-light like the photo: brighter toward the upper right, falling off to the left. */
+    background:
+      radial-gradient(120% 90% at 85% 0%, oklch(0.975 0.008 80) 0%, transparent 60%),
+      var(--color-background);
+    background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    letter-spacing: 0.005em;
   }
-  h1, h2, h3 { font-family: var(--font-serif); }
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+  ::selection { background: var(--color-primary); color: var(--color-primary-foreground); }
+  :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
 }
 
 @keyframes fade-up {
@@ -78,10 +92,43 @@
 @utility animate-fade-up {
   animation: fade-up 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up { animation: none; }
+}
 @utility lift {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   &:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 40px -20px oklch(0.3 0.03 60 / 0.35);
+    /* the shadow falls down-left, as the model's does on the wall */
+    box-shadow: -16px 22px 40px -22px oklch(0.3 0.02 55 / 0.45);
   }
+}
+/* The feathered hem — the one bold element. A page's title panel is the dress
+   against the wall: jet black, ivory type, and a ragged feathered bottom edge
+   like the frayed tiers of the skirt. Tokens are inverted inside the panel so
+   every control in it (search, chips, tabs, buttons) stays legible. */
+@utility hem {
+  --hem: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 30' preserveAspectRatio='none'%3E%3Cpath d='M0 0H300V6L294 26L287 7L281 19L274 10L269 23L263 8L257 16L250 9L245 29L239 6L233 18L226 11L222 25L216 7L210 14L203 9L198 27L192 6L186 20L179 10L175 24L168 7L163 17L156 8L151 30L144 9L140 23L133 6L128 16L121 11L116 28L110 7L104 19L97 10L93 25L86 6L81 15L75 8L70 27L62 9L58 22L52 7L47 16L40 10L36 29L31 8L26 18L19 9L15 24L9 7L6 14L0 6Z'/%3E%3C/svg%3E");
+  --cream: oklch(0.17 0.004 60);
+  --foreground: oklch(0.95 0.01 75);
+  --card: oklch(0.24 0.005 60);
+  --card-foreground: oklch(0.95 0.01 75);
+  --primary: oklch(0.95 0.01 75);
+  --primary-foreground: oklch(0.17 0.004 60);
+  --secondary: oklch(0.3 0.006 60);
+  --secondary-foreground: oklch(0.95 0.01 75);
+  --muted-foreground: oklch(0.74 0.015 70);
+  --border: oklch(0.36 0.008 60);
+  --ring: oklch(0.95 0.01 75);
+  color: var(--foreground);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-bottom: calc(2.5rem + 30px);
+  -webkit-mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - 29px) no-repeat,
+    var(--hem) bottom / 300px 30px repeat-x;
+  mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - 29px) no-repeat,
+    var(--hem) bottom / 300px 30px repeat-x;
+  & ::placeholder { color: var(--muted-foreground); }
 }

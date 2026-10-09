@@ -45,7 +45,7 @@ export default function Index() {
       </nav>
 
       <section className="mx-auto max-w-7xl px-6 pt-6 pb-16">
-        <div className="grid items-center gap-6 rounded-3xl bg-cream p-6 md:grid-cols-[1fr_1.4fr_1fr] md:p-10">
+        <div className="hem grid items-center gap-6 rounded-3xl bg-cream p-6 md:grid-cols-[1fr_1.4fr_1fr] md:p-10">
           <img src={heroLeft} alt="Textured crop haircut" width={768} height={1024} className="hidden aspect-[3/4] w-full rounded-2xl object-cover md:block animate-fade-up" />
           <div className="py-10 text-center animate-fade-up" style={{ animationDelay: "0.1s" }}>
             <p className="text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">New Look</p>
