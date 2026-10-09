@@ -37,6 +37,7 @@ export default function BarberDetail() {
   const { data: slots = [] } = useBarberSlots(id);
   const [open, setOpen] = useState(false);
   const [initialDay, setInitialDay] = useState<string | null>(null);
+  const [initialStartId, setInitialStartId] = useState<string | null>(null);
 
   useHead([
     { title: barber ? `${barber.name} — Barberly` : "Barber — Barberly" },
@@ -59,9 +60,11 @@ export default function BarberDetail() {
 
   const isShop = session?.profile.role === "shop";
 
-  function book(day: string | null = null) {
+  // Opened from a time chip below: carry that day AND time into the dialog.
+  function book(day: string | null = null, startId: string | null = null) {
     if (!session) return navigate(signInPath(pathname));
     setInitialDay(day);
+    setInitialStartId(startId);
     setOpen(true);
   }
 
@@ -183,7 +186,7 @@ export default function BarberDetail() {
                             key={s.id}
                             type="button"
                             disabled={isShop || services.length === 0}
-                            onClick={() => book(k)}
+                            onClick={() => book(k, s.id)}
                             className="rounded-full border bg-background px-3.5 py-1.5 text-sm tabular-nums transition hover:bg-secondary disabled:cursor-default disabled:hover:bg-background"
                           >
                             {fmtTime(s.starts_at)}
@@ -207,6 +210,7 @@ export default function BarberDetail() {
           services={services}
           slots={slots}
           initialDay={initialDay}
+          initialStartId={initialStartId}
           onBooked={() => qc.invalidateQueries({ queryKey: availableSlotsKey(barber.id) })}
         />
       )}

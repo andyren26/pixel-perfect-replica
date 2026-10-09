@@ -31,6 +31,8 @@ type Props = {
   services: Service[];
   slots: SlotWithHold[];
   initialDay?: string | null;
+  // The time chip the dialog was opened from (pre-selected once a service fits it).
+  initialStartId?: string | null;
   onBooked: () => void;
 };
 
@@ -44,6 +46,7 @@ export default function BookingDialog({
   services,
   slots,
   initialDay,
+  initialStartId,
   onBooked,
 }: Props) {
   const { data: settings } = usePlatformSettings();
@@ -88,7 +91,16 @@ export default function BookingDialog({
     });
   }, [open, days, initialDay]);
 
-  useEffect(() => setStartId(null), [serviceId, day]);
+  // A new service or day clears the start time, except that the time chip the
+  // dialog was opened from stays selected while it's a valid start on this day.
+  useEffect(() => {
+    const keep =
+      initialStartId &&
+      options.has(initialStartId) &&
+      slots.some((s) => s.id === initialStartId && dayKey(s.starts_at) === day);
+    setStartId(keep ? initialStartId : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, serviceId, day]);
 
   const daySlots = free.filter((s) => day && dayKey(s.starts_at) === day);
   const run = startId ? options.get(startId) : undefined;
@@ -241,7 +253,12 @@ export default function BookingDialog({
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <DialogFooter className="gap-2 sm:gap-2">
+        <DialogFooter className="items-center gap-2 sm:gap-2">
+          {!busy && (!service || !startId) && (
+            <span className="mr-auto text-xs text-muted-foreground" aria-live="polite">
+              {!service ? "請先選擇服務 / Pick a service" : "請選擇開始時間 / Pick a start time"}
+            </span>
+          )}
           <button
             type="button"
             className={ghostBtn}
