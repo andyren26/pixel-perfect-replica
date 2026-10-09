@@ -23,6 +23,8 @@ describe("App routing", () => {
     ["/shop/bookings", "shop/bookings"],
     ["/login", "login"],
     ["/barbers", "barbers"],
+    ["/barbers/0b6c6f43-6a52-4a8e-9a8a-0f3a3c1f2b10", "barbers/:id"],
+    ["/bookings", "bookings"],
   ])("matches a page for %s", (url, expected) => {
     expect(leafPath(url)).toBe(expected);
   });

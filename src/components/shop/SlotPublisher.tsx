@@ -7,7 +7,8 @@ import type { Tables } from "@/integrations/supabase/types";
 import { usePlatformSettings } from "@/lib/platform";
 import { cardCls, inputCls, labelCls, primaryBtn } from "@/lib/ui";
 
-type Slot = Tables<"bookable_slots">;
+// held = a booking holds this slot (a booking_slots row references it).
+type Slot = Tables<"bookable_slots"> & { held: boolean };
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const toDateInput = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -41,12 +42,15 @@ export default function SlotPublisher({ barberId }: { barberId: string }) {
       startOfToday.setHours(0, 0, 0, 0);
       const { data, error } = await supabase
         .from("bookable_slots")
-        .select("*")
+        .select("*, booking_slots(slot_id)")
         .eq("barber_id", barberId)
         .gte("starts_at", startOfToday.toISOString())
         .order("starts_at");
       if (error) throw error;
-      return data;
+      return data.map(({ booking_slots, ...s }) => ({
+        ...s,
+        held: Array.isArray(booking_slots) ? booking_slots.length > 0 : !!booking_slots,
+      }));
     },
   });
   const refresh = () => qc.invalidateQueries({ queryKey: key });
@@ -91,6 +95,7 @@ export default function SlotPublisher({ barberId }: { barberId: string }) {
   }
 
   async function removeSlots(ids: string[]) {
+    if (!ids.length) return;
     const { error } = await supabase.from("bookable_slots").delete().in("id", ids);
     if (error) setMessage({ ok: false, text: error.message });
     refresh();
@@ -177,39 +182,59 @@ export default function SlotPublisher({ barberId }: { barberId: string }) {
             <div className="mb-2 flex items-center justify-between">
               <h3 className="font-medium">
                 {fmtDay(day)} · {list.length} 個時段
+                {list.some((s) => s.held) && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    （{list.filter((s) => s.held).length} 個已被預約）
+                  </span>
+                )}
               </h3>
-              <ConfirmButton
-                label="清空這天 / Clear day"
-                onConfirm={() => removeSlots(list.map((s) => s.id))}
-              />
+              {list.some((s) => !s.held) && (
+                <ConfirmButton
+                  label="清空空檔 / Clear free slots"
+                  onConfirm={() => removeSlots(list.filter((s) => !s.held).map((s) => s.id))}
+                />
+              )}
             </div>
             <ul className="flex flex-wrap gap-2">
-              {list.map((s) => (
-                <li
-                  key={s.id}
-                  className="flex items-center gap-1 rounded-full border bg-background py-1 pr-1 pl-3 text-sm"
-                >
-                  <input
-                    type="time"
-                    aria-label="Slot start time"
-                    step={slotMinutes * 60}
-                    defaultValue={fmtTime(s.starts_at)}
-                    onBlur={(e) =>
-                      e.target.value !== fmtTime(s.starts_at) && moveSlot(s, e.target.value)
-                    }
-                    className="w-[5.5rem] bg-transparent outline-none"
-                  />
-                  <span className="text-muted-foreground">– {fmtTime(s.ends_at)}</span>
-                  <button
-                    type="button"
-                    aria-label="Delete slot"
-                    onClick={() => removeSlots([s.id])}
-                    className="rounded-full px-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              {list.map((s) =>
+                s.held ? (
+                  <li
+                    key={s.id}
+                    title="已被預約，無法修改或刪除 / Booked — can't edit or delete"
+                    className="flex items-center gap-1 rounded-full border border-primary bg-primary py-1 pr-3 pl-3 text-sm text-primary-foreground"
                   >
-                    ×
-                  </button>
-                </li>
-              ))}
+                    <span className="tabular-nums">
+                      {fmtTime(s.starts_at)} – {fmtTime(s.ends_at)}
+                    </span>
+                    <span className="ml-1 text-xs opacity-80">已預約</span>
+                  </li>
+                ) : (
+                  <li
+                    key={s.id}
+                    className="flex items-center gap-1 rounded-full border bg-background py-1 pr-1 pl-3 text-sm"
+                  >
+                    <input
+                      type="time"
+                      aria-label="Slot start time"
+                      step={slotMinutes * 60}
+                      defaultValue={fmtTime(s.starts_at)}
+                      onBlur={(e) =>
+                        e.target.value !== fmtTime(s.starts_at) && moveSlot(s, e.target.value)
+                      }
+                      className="w-[5.5rem] bg-transparent outline-none"
+                    />
+                    <span className="text-muted-foreground">– {fmtTime(s.ends_at)}</span>
+                    <button
+                      type="button"
+                      aria-label="Delete slot"
+                      onClick={() => removeSlots([s.id])}
+                      className="rounded-full px-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      ×
+                    </button>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
         ))}

@@ -22,8 +22,18 @@ export async function getSession(): Promise<Session | null> {
 
 // Post-login landing page by role. Only shop and customer are routed here.
 export function homePathForRole(role: string): string {
-  return role === "shop" ? "/shop" : "/app";
+  return role === "shop" ? "/shop" : "/barbers";
 }
+
+// Only follow same-site relative paths from ?next= (never "//evil.com" or a full URL).
+export function safeNext(next: string | null | undefined): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\"))
+    return null;
+  return next;
+}
+
+export const signInPath = (next?: string) =>
+  next ? `/sign-in?next=${encodeURIComponent(next)}` : "/sign-in";
 
 // A shop has finished onboarding once the shop name + both bank fields are saved.
 export function isOnboarded(profile: Profile): boolean {

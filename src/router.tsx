@@ -1,31 +1,51 @@
-import { Navigate, Outlet, createBrowserRouter, redirect, type RouteObject } from "react-router";
+import {
+  Navigate,
+  Outlet,
+  createBrowserRouter,
+  redirect,
+  type LoaderFunctionArgs,
+  type RouteObject,
+} from "react-router";
 
 import Index from "@/pages/Index";
 import AuthPage from "@/pages/Auth";
-import AppHome from "@/pages/AppHome";
+import Barbers from "@/pages/Barbers";
+import BarberDetail from "@/pages/BarberDetail";
+import MyBookings from "@/pages/MyBookings";
 import ShopOnboarding from "@/pages/ShopOnboarding";
 import ShopBookings from "@/pages/ShopBookings";
 import { ErrorComponent, NotFoundComponent } from "@/pages/RootErrors";
-import { getSession } from "@/lib/profile";
+import { getSession, signInPath } from "@/lib/profile";
+
+const currentPath = (request: Request) => {
+  const url = new URL(request.url);
+  return url.pathname + url.search;
+};
 
 // Signed-in guard: user + their profiles row (role comes from profiles.role).
-async function requireSession() {
+// Sends a signed-out visitor to sign-in and back here afterwards.
+async function requireSession({ request }: LoaderFunctionArgs) {
   const session = await getSession();
-  if (!session) throw redirect("/sign-in");
+  if (!session) throw redirect(signInPath(currentPath(request)));
   return session;
 }
 
-// Customer home. A shop lands on its own dashboard instead.
-async function customerLoader() {
-  const session = await requireSession();
+// Public pages (barber browse/detail): the session is optional.
+async function optionalSession() {
+  return getSession();
+}
+
+// Customer-only pages. A shop lands on its own dashboard instead.
+async function customerLoader(args: LoaderFunctionArgs) {
+  const session = await requireSession(args);
   if (session.profile.role === "shop") throw redirect("/shop");
   return session;
 }
 
 // Shop-only pages.
-async function shopLoader() {
-  const session = await requireSession();
-  if (session.profile.role !== "shop") throw redirect("/app");
+async function shopLoader(args: LoaderFunctionArgs) {
+  const session = await requireSession(args);
+  if (session.profile.role !== "shop") throw redirect("/barbers");
   return session;
 }
 
@@ -45,12 +65,14 @@ export const routes: RouteObject[] = [
           { path: "sign-up", element: null },
         ],
       },
-      { path: "app", loader: customerLoader, element: <AppHome /> },
+      { path: "barbers", loader: optionalSession, element: <Barbers /> },
+      { path: "barbers/:id", loader: optionalSession, element: <BarberDetail /> },
+      { path: "bookings", loader: customerLoader, element: <MyBookings /> },
       { path: "shop", loader: shopLoader, element: <ShopOnboarding /> },
       { path: "shop/bookings", loader: shopLoader, element: <ShopBookings /> },
-      // Old URLs from the TanStack version.
+      // Old URLs: the M0 customer placeholder and the TanStack-era login.
+      { path: "app", element: <Navigate to="/barbers" replace /> },
       { path: "login", element: <Navigate to="/sign-in" replace /> },
-      { path: "barbers", element: <Navigate to="/app" replace /> },
       { path: "*", element: <NotFoundComponent /> },
     ],
   },

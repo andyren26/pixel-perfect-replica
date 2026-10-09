@@ -1,19 +1,36 @@
-import type { ReactNode } from "react";
-import { Link, NavLink, useNavigate } from "react-router";
+import { useState, type ReactNode } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
-import type { Profile } from "@/lib/profile";
+import { errMessage } from "@/lib/errors";
+import { signInPath, type Profile } from "@/lib/profile";
 
-type Props = { email: string | undefined; profile: Profile; children?: ReactNode };
+type Props = { email: string | undefined; profile: Profile | null; children?: ReactNode };
 
-// Signed-in header shared by the customer and shop pages.
+// Header shared by every app page. Shops see their dashboard tabs, customers see
+// browse + my bookings, signed-out visitors (public /barbers pages) see Sign In.
 export default function AppHeader({ email, profile, children }: Props) {
   const navigate = useNavigate();
-  const isShop = profile.role === "shop";
+  const { pathname } = useLocation();
+  const [busy, setBusy] = useState(false);
+  const isShop = profile?.role === "shop";
+  const isCustomer = profile?.role === "customer";
 
   async function signOut() {
     await supabase.auth.signOut();
     navigate("/sign-in", { replace: true });
+  }
+
+  async function becomeShop() {
+    setBusy(true);
+    const { data, error } = await supabase.rpc("become_shop");
+    setBusy(false);
+    if (error || data !== "shop") {
+      toast.error(errMessage(error, "Could not upgrade this account."));
+      return;
+    }
+    navigate("/shop", { replace: true });
   }
 
   const tab = ({ isActive }: { isActive: boolean }) =>
@@ -24,28 +41,61 @@ export default function AppHeader({ email, profile, children }: Props) {
       <Link to="/" className="font-serif text-3xl font-semibold">
         Barberly
       </Link>
-      {isShop && (
-        <nav className="flex items-center gap-1 text-sm">
-          <NavLink to="/shop" end className={tab}>
-            我的理髮店 / Shop
-          </NavLink>
-          <NavLink to="/shop/bookings" className={tab}>
-            服務與時段 / Bookings
-          </NavLink>
-        </nav>
-      )}
-      <div className="ml-auto flex items-center gap-3 text-sm">
-        <span className="hidden sm:inline">Hi {email}</span>
-        {isShop && (
-          <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">barber</span>
+      <nav className="flex items-center gap-1 text-sm">
+        {isShop ? (
+          <>
+            <NavLink to="/shop" end className={tab}>
+              我的理髮店 / Shop
+            </NavLink>
+            <NavLink to="/shop/bookings" className={tab}>
+              服務與時段 / Bookings
+            </NavLink>
+          </>
+        ) : (
+          <>
+            <NavLink to="/barbers" className={tab}>
+              找理髮師 / Barbers
+            </NavLink>
+            {isCustomer && (
+              <NavLink to="/bookings" className={tab}>
+                我的預約 / My bookings
+              </NavLink>
+            )}
+          </>
         )}
-        {children}
-        <button
-          onClick={signOut}
-          className="rounded-full bg-primary px-5 py-2 text-primary-foreground hover:opacity-90"
-        >
-          Sign Out
-        </button>
+      </nav>
+      <div className="ml-auto flex items-center gap-3 text-sm">
+        {profile ? (
+          <>
+            <span className="hidden sm:inline">Hi {email}</span>
+            {isShop && (
+              <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">barber</span>
+            )}
+            {children}
+            {isCustomer && (
+              <button
+                onClick={becomeShop}
+                disabled={busy}
+                className="hidden rounded-full border border-primary px-5 py-2 font-medium transition hover:bg-secondary disabled:opacity-60 md:inline-block"
+              >
+                {busy ? "Please wait…" : "開店 / Become a shop"}
+              </button>
+            )}
+            <button
+              onClick={signOut}
+              className="rounded-full bg-primary px-5 py-2 text-primary-foreground hover:opacity-90"
+            >
+              Sign Out
+            </button>
+          </>
+        ) : (
+          <Link
+            to={signInPath(pathname)}
+            className="rounded-full bg-primary px-6 py-2 font-medium text-primary-foreground hover:opacity-90"
+          >
+            Login
+          </Link>
+        )}
       </div>
     </header>
   );

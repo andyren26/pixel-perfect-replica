@@ -1,8 +1,8 @@
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useHead } from "@/hooks/use-head";
-import { getSession, homePathForRole } from "@/lib/profile";
+import { getSession, homePathForRole, safeNext } from "@/lib/profile";
 
 const head = [
   { title: "Sign in — Barberly" },
@@ -17,10 +17,13 @@ const head = [
 export default function AuthPage() {
   useHead(head);
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const [params] = useSearchParams();
+  // Where to return after auth (e.g. the barber page whose Book button sent us here).
+  const next = safeNext(params.get("next"));
   const mode: "signin" | "signup" = pathname.replace(/\/+$/, "") === "/sign-up" ? "signup" : "signin";
-  const setMode = (next: "signin" | "signup") =>
-    navigate(next === "signup" ? "/sign-up" : "/sign-in", { replace: true });
+  const setMode = (m: "signin" | "signup") =>
+    navigate((m === "signup" ? "/sign-up" : "/sign-in") + search, { replace: true });
   const [role, setRole] = useState<"customer" | "shop">("customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,10 +37,12 @@ export default function AuthPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Land on the page for this account's role (read from profiles.role).
+  // Return to ?next= if given, else land on the page for this account's role
+  // (read from profiles.role).
   async function goHome() {
     const session = await getSession();
-    navigate(session ? homePathForRole(session.profile.role) : "/app", { replace: true });
+    const home = session ? homePathForRole(session.profile.role) : "/barbers";
+    navigate(next ?? home, { replace: true });
   }
 
   async function submit(e: React.FormEvent) {
@@ -49,7 +54,7 @@ export default function AuthPage() {
         ? await supabase.auth.signUp({
             email,
             password,
-            options: { emailRedirectTo: `${window.location.origin}/sign-in`, data: { role } },
+            options: { emailRedirectTo: `${window.location.origin}/sign-in${search}`, data: { role } },
           })
         : await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);

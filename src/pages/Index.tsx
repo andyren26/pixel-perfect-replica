@@ -89,7 +89,7 @@ export default function Index() {
         <h2 className="text-4xl md:text-5xl">Popular</h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {barbers.map((b) => (
-            <a key={b.name} href="#" onClick={(e) => e.preventDefault()} className="lift block overflow-hidden rounded-2xl border bg-card">
+            <Link key={b.name} to="/barbers" className="lift block overflow-hidden rounded-2xl border bg-card">
               <div className="relative">
                 <div className="aspect-square w-full bg-sand" style={{ backgroundImage: `url(${barbersImg})`, backgroundSize: "200% 200%", backgroundPosition: b.pos }} role="img" aria-label={b.name} />
                 <span className="absolute top-3 left-3 rounded-full bg-card px-3 py-1 text-xs font-medium">Popular</span>
@@ -105,7 +105,7 @@ export default function Index() {
                   <span>from <strong>${b.price}</strong></span>
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </section>
