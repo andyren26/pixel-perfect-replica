@@ -17,6 +17,7 @@ export default function AppHeader({ email, profile, children }: Props) {
   const [confirming, setConfirming] = useState(false);
   const isShop = profile?.role === "shop";
   const isCustomer = profile?.role === "customer";
+  const isAdmin = profile?.role === "admin";
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -52,6 +53,9 @@ export default function AppHeader({ email, profile, children }: Props) {
             <NavLink to="/shop/bookings" className={tab}>
               服務與時段 / Bookings
             </NavLink>
+            <NavLink to="/shop/earnings" className={tab}>
+              收入 / Earnings
+            </NavLink>
           </>
         ) : (
           <>
@@ -63,6 +67,11 @@ export default function AppHeader({ email, profile, children }: Props) {
                 我的預約 / My bookings
               </NavLink>
             )}
+            {isAdmin && (
+              <NavLink to="/admin/payouts" className={tab}>
+                撥款管理 / Payouts
+              </NavLink>
+            )}
           </>
         )}
       </nav>
@@ -72,6 +81,9 @@ export default function AppHeader({ email, profile, children }: Props) {
             <span className="hidden sm:inline">Hi {email}</span>
             {isShop && (
               <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">barber</span>
+            )}
+            {isAdmin && (
+              <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">admin</span>
             )}
             {children}
             {isCustomer &&

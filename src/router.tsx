@@ -15,6 +15,8 @@ import MyBookings from "@/pages/MyBookings";
 import BookingSuccess from "@/pages/BookingSuccess";
 import ShopOnboarding from "@/pages/ShopOnboarding";
 import ShopBookings from "@/pages/ShopBookings";
+import ShopEarnings from "@/pages/ShopEarnings";
+import AdminPayouts from "@/pages/AdminPayouts";
 import { ErrorComponent, NotFoundComponent } from "@/pages/RootErrors";
 import { getSession, signInPath } from "@/lib/profile";
 
@@ -50,6 +52,16 @@ async function shopLoader(args: LoaderFunctionArgs) {
   return session;
 }
 
+// Admin-only pages. This guard is UX only — the real control is RLS on payouts /
+// bank fields plus the admin-guarded build/mark/cancel RPCs.
+async function adminLoader(args: LoaderFunctionArgs) {
+  const session = await requireSession(args);
+  if (session.profile.role !== "admin") {
+    throw redirect(session.profile.role === "shop" ? "/shop" : "/barbers");
+  }
+  return session;
+}
+
 export const routes: RouteObject[] = [
   {
     path: "/",
@@ -72,6 +84,9 @@ export const routes: RouteObject[] = [
       { path: "bookings/success", loader: requireSession, element: <BookingSuccess /> },
       { path: "shop", loader: shopLoader, element: <ShopOnboarding /> },
       { path: "shop/bookings", loader: shopLoader, element: <ShopBookings /> },
+      { path: "shop/earnings", loader: shopLoader, element: <ShopEarnings /> },
+      { path: "admin", element: <Navigate to="/admin/payouts" replace /> },
+      { path: "admin/payouts", loader: adminLoader, element: <AdminPayouts /> },
       // Old URLs: the M0 customer placeholder and the TanStack-era login.
       { path: "app", element: <Navigate to="/barbers" replace /> },
       { path: "login", element: <Navigate to="/sign-in" replace /> },

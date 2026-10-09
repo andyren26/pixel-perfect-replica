@@ -20,9 +20,10 @@ export async function getSession(): Promise<Session | null> {
   return { user: data.user, profile };
 }
 
-// Post-login landing page by role. Only shop and customer are routed here.
+// Post-login landing page by role. M2.2 restored admin → /admin/payouts
+// (the M2.1 prereq had parked admin on /barbers until this page existed).
 export function homePathForRole(role: string): string {
-  return role === "shop" ? "/shop" : "/barbers";
+  return role === "shop" ? "/shop" : role === "admin" ? "/admin/payouts" : "/barbers";
 }
 
 // Only follow same-site relative paths from ?next= (never "//evil.com" or a full URL).
