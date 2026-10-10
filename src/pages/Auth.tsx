@@ -10,15 +10,16 @@ import {
   type SocialProviderId,
 } from "@/lib/oauth";
 import { authInputClass, authPrimaryButtonClass } from "@/lib/ui";
+import { authErrorText } from "@/lib/authErrors";
 
 const head = [
-  { title: "Sign in — Barberly" },
+  { title: "登入 — Barberly" },
   {
     name: "description",
-    content: "Sign in or create your Barberly account as a customer or barber.",
+    content: "以顧客或理髮師身分登入、建立 Barberly 帳號。",
   },
-  { property: "og:title", content: "Sign in — Barberly" },
-  { property: "og:description", content: "Sign in or create your Barberly account." },
+  { property: "og:title", content: "登入 — Barberly" },
+  { property: "og:description", content: "登入或建立 Barberly 帳號。" },
   { property: "og:type", content: "website" },
   { name: "twitter:card", content: "summary" },
 ];
@@ -53,7 +54,7 @@ export default function AuthPage() {
     // then drop it from the address bar so a retry starts clean.
     const failed = params.get("error_description") ?? params.get("error");
     if (failed) {
-      setError(failed);
+      setError(authErrorText(failed));
       navigate(pathname + search, { replace: true });
     }
     supabase.auth.getSession().then(({ data }) => {
@@ -92,7 +93,7 @@ export default function AuthPage() {
           })
         : await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (res.error) return setError(res.error.message);
+    if (res.error) return setError(authErrorText(res.error.message));
     if (res.data.session) return goHome();
     // Sign-up with email confirmation on: no session until the link is clicked.
     if (mode === "signup") setSentTo(email);
@@ -104,7 +105,7 @@ export default function AuthPage() {
       provider: asProvider(id),
       options: { redirectTo: `${window.location.origin}/sign-in${search}` },
     });
-    if (error) setError(error.message);
+    if (error) setError(authErrorText(error.message));
   }
 
   // Social sign-up has no role tab, so it always creates a customer account;
@@ -114,7 +115,7 @@ export default function AuthPage() {
   if (sentTo) {
     return (
       <Shell>
-        <h1 className="text-center text-3xl">Check your email</h1>
+        <h1 className="text-center text-3xl">請確認您的信箱</h1>
         <p className="mt-6 text-center text-base">認證信已經寄到您的信箱，請至信箱收信並認證</p>
         <p className="mt-2 text-center text-sm text-muted-foreground">{sentTo}</p>
         <button
@@ -126,7 +127,7 @@ export default function AuthPage() {
           }}
           className={`mt-8 ${authPrimaryButtonClass}`}
         >
-          Back to Sign In
+          回到登入
         </button>
       </Shell>
     );
@@ -134,9 +135,7 @@ export default function AuthPage() {
 
   return (
     <Shell>
-      <h1 className="text-center text-4xl">
-        {mode === "signup" ? "Create account" : "Welcome back"}
-      </h1>
+      <h1 className="text-center text-4xl">{mode === "signup" ? "建立帳號" : "歡迎回來"}</h1>
 
       {mode === "signup" && (
         <div className="mt-6 grid grid-cols-2 rounded-full bg-secondary p-1" role="tablist">
@@ -149,7 +148,7 @@ export default function AuthPage() {
               onClick={() => setRole(r)}
               className={`rounded-full py-2 text-sm font-medium transition ${role === r ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
             >
-              {r === "customer" ? "Customer" : "Barber"}
+              {r === "customer" ? "我是顧客" : "我是理髮師"}
             </button>
           ))}
         </div>
@@ -159,7 +158,7 @@ export default function AuthPage() {
         <input
           type="email"
           required
-          placeholder="Email"
+          placeholder="電子信箱"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={authInputClass}
@@ -168,7 +167,7 @@ export default function AuthPage() {
           type="password"
           required
           minLength={6}
-          placeholder="Password"
+          placeholder="密碼（至少 6 個字元）"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className={authInputClass}
@@ -179,13 +178,13 @@ export default function AuthPage() {
               to={`/forgot-password${search}`}
               className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
             >
-              Forgot password?
+              忘記密碼？
             </Link>
           </div>
         )}
         {error && <p className="text-sm text-destructive">{error}</p>}
         <button disabled={loading} className={authPrimaryButtonClass}>
-          {loading ? "Please wait…" : mode === "signup" ? "Sign Up" : "Sign In"}
+          {loading ? "處理中…" : mode === "signup" ? "註冊" : "登入"}
         </button>
       </form>
 
@@ -193,7 +192,7 @@ export default function AuthPage() {
         <>
           <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
             <span className="h-px flex-1 bg-border" />
-            or continue with
+            或使用以下方式
             <span className="h-px flex-1 bg-border" />
           </div>
           <div className="grid gap-3">
@@ -204,7 +203,7 @@ export default function AuthPage() {
                 onClick={() => signInWith(p.id)}
                 className="w-full rounded-full border bg-background py-3 text-sm font-medium transition hover:bg-secondary"
               >
-                Continue with {p.label}
+                使用 {p.label} 登入
               </button>
             ))}
           </div>
@@ -212,7 +211,7 @@ export default function AuthPage() {
       )}
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        {mode === "signup" ? "Already have an account?" : "New to Barberly?"}{" "}
+        {mode === "signup" ? "已經有帳號了？" : "還沒有 Barberly 帳號？"}{" "}
         <button
           type="button"
           onClick={() => {
@@ -221,7 +220,7 @@ export default function AuthPage() {
           }}
           className="font-medium text-foreground underline underline-offset-4"
         >
-          {mode === "signup" ? "Sign In" : "Sign Up"}
+          {mode === "signup" ? "登入" : "註冊"}
         </button>
       </p>
     </Shell>

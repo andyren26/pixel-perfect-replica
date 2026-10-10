@@ -40,8 +40,8 @@ export default function BarberDetail() {
   const [initialStartId, setInitialStartId] = useState<string | null>(null);
 
   useHead([
-    { title: barber ? `${barber.name} — Barberly` : "Barber — Barberly" },
-    { name: "description", content: barber?.intro ?? "Book a barber on Barberly." },
+    { title: barber ? `${barber.name} — Barberly` : "理髮師 — Barberly" },
+    { name: "description", content: barber?.intro ?? "在 Barberly 預約理髮師。" },
   ]);
 
   const services = useMemo(
@@ -112,7 +112,7 @@ export default function BarberDetail() {
                 )}
                 {services[0] && (
                   <p className="mt-4 text-lg">
-                    from <strong>{formatMoney(services[0].price, settings)}</strong>
+                    <strong>{formatMoney(services[0].price, settings)}</strong> 起
                   </p>
                 )}
                 {barber.intro && (

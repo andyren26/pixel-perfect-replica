@@ -24,8 +24,8 @@ import type { Session } from "@/lib/profile";
 import { cardCls, ghostBtn, inputCls, primaryBtn } from "@/lib/ui";
 
 const head = [
-  { title: "Payouts — Barberly admin" },
-  { name: "description", content: "Settle shop earnings and record bank transfers." },
+  { title: "撥款管理 — Barberly 後台" },
+  { name: "description", content: "結算店家收入並記錄銀行轉帳。" },
 ];
 
 const fmtDate = (iso: string | null) =>
@@ -126,7 +126,7 @@ export default function AdminPayouts() {
     });
     setBuilding(false);
     if (error) {
-      toast.error(errMessage(error, "Could not build the payout."));
+      toast.error(errMessage(error, "無法建立撥款。"));
     } else {
       toast.success(`已建立撥款 / Payout built — ${money(totals.shop)}`);
       setSelected(new Set());
@@ -147,7 +147,7 @@ export default function AdminPayouts() {
       ...(ref ? { p_bank_reference: ref } : {}),
     });
     setBusyId(null);
-    if (error) toast.error(errMessage(error, "Could not mark as transferred."));
+    if (error) toast.error(errMessage(error, "無法標記為已轉帳。"));
     else toast.success("已標記為已轉帳 / Marked as transferred");
     refresh();
   }
@@ -156,7 +156,7 @@ export default function AdminPayouts() {
     setBusyId(id);
     const { error } = await supabase.rpc("cancel_payout", { p_payout_id: id });
     setBusyId(null);
-    if (error) toast.error(errMessage(error, "Could not cancel this payout."));
+    if (error) toast.error(errMessage(error, "無法取消這筆撥款。"));
     else toast.success("已取消撥款，預約已退回欠款池 / Cancelled — bookings are owed again");
     refresh();
   }
@@ -191,7 +191,7 @@ export default function AdminPayouts() {
               className={inputCls}
               value={shopFilter}
               onChange={(e) => setShopFilter(e.target.value)}
-              aria-label="Filter by shop"
+              aria-label="依店家篩選"
             >
               <option value="">全部店家 / All shops</option>
               {shops.map(([id, name]) => (
@@ -211,14 +211,14 @@ export default function AdminPayouts() {
               className={inputCls}
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              aria-label="Paid from"
+              aria-label="付款日期起"
             />
             <input
               type="date"
               className={inputCls}
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              aria-label="Paid to"
+              aria-label="付款日期迄"
             />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -240,7 +240,7 @@ export default function AdminPayouts() {
 
           <div className="mt-5 overflow-x-auto">
             {owedLoading ? (
-              <p className="py-6 text-sm text-muted-foreground">Loading…</p>
+              <p className="py-6 text-sm text-muted-foreground">載入中…</p>
             ) : owedError ? (
               <p className="py-6 text-sm text-destructive">{errMessage(owedError)}</p>
             ) : visible.length === 0 ? (
@@ -284,7 +284,7 @@ export default function AdminPayouts() {
                                 : undefined
                             }
                             onChange={() => toggle(id)}
-                            aria-label={`Select booking ${id.slice(0, 8)}`}
+                            aria-label={`選取預約 ${id.slice(0, 8)}`}
                           />
                         </td>
                         <td className={td}>{o.shop_name || "（未命名店家）"}</td>
@@ -339,7 +339,7 @@ export default function AdminPayouts() {
           <h2 className="font-serif text-2xl font-semibold">撥款紀錄 / Payouts</h2>
           <div className="mt-5 overflow-x-auto">
             {payoutsLoading ? (
-              <p className="py-6 text-sm text-muted-foreground">Loading…</p>
+              <p className="py-6 text-sm text-muted-foreground">載入中…</p>
             ) : payoutsError ? (
               <p className="py-6 text-sm text-destructive">{errMessage(payoutsError)}</p>
             ) : payouts.length === 0 ? (

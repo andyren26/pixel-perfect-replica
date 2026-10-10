@@ -11,8 +11,8 @@ import type { Session } from "@/lib/profile";
 import { cardCls, ghostBtn, primaryBtn } from "@/lib/ui";
 
 const head = [
-  { title: "Payment — Barberly" },
-  { name: "description", content: "Your Barberly booking payment." },
+  { title: "付款結果 — Barberly" },
+  { name: "description", content: "你的 Barberly 預約付款結果。" },
 ];
 
 const POLL_MS = 1500;
@@ -29,7 +29,11 @@ export default function BookingSuccess() {
   const { data: settings } = usePlatformSettings();
   const [startedAt] = useState(() => Date.now()); // fixed at first render
 
-  const { data: booking, error, dataUpdatedAt } = useQuery({
+  const {
+    data: booking,
+    error,
+    dataUpdatedAt,
+  } = useQuery({
     queryKey: ["booking-status", bookingId],
     enabled: !!bookingId,
     queryFn: async () => {

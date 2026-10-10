@@ -23,8 +23,8 @@ import type { Session } from "@/lib/profile";
 import { cardCls, primaryBtn } from "@/lib/ui";
 
 const head = [
-  { title: "My bookings — Barberly" },
-  { name: "description", content: "Your Barberly bookings." },
+  { title: "我的預約 — Barberly" },
+  { name: "description", content: "你在 Barberly 的預約紀錄。" },
 ];
 
 const STATUS_STYLE: Record<string, string> = {
@@ -52,7 +52,7 @@ export default function MyBookings() {
       await startCheckout(id);
     } catch (e) {
       setPayingId(null);
-      setCancelError(errMessage(e, "Could not start payment."));
+      setCancelError(errMessage(e, "無法開始付款，請再試一次。"));
     }
   }
 
@@ -66,7 +66,7 @@ export default function MyBookings() {
       .eq("id", id)
       .select("id");
     if (error || !data?.length) {
-      setCancelError(errMessage(error, "Could not cancel this booking."));
+      setCancelError(errMessage(error, "無法取消這筆預約。"));
     } else {
       toast.success("已取消預約 / Booking cancelled");
     }
@@ -89,11 +89,9 @@ export default function MyBookings() {
         {cancelError && <p className="text-sm text-destructive">{cancelError}</p>}
 
         {error ? (
-          <p className="text-sm text-destructive">
-            {errMessage(error, "Could not load bookings.")}
-          </p>
+          <p className="text-sm text-destructive">{errMessage(error, "無法載入預約紀錄。")}</p>
         ) : isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <p className="text-sm text-muted-foreground">載入中…</p>
         ) : bookings.length === 0 ? (
           <div className={`${cardCls} text-center`}>
             <p className="text-muted-foreground">還沒有任何預約 / No bookings yet.</p>

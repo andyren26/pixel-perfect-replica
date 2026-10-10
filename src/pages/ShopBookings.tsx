@@ -10,8 +10,8 @@ import { isOnboarded, type Session } from "@/lib/profile";
 import { primaryBtn } from "@/lib/ui";
 
 const head = [
-  { title: "Services & slots — Barberly" },
-  { name: "description", content: "Manage your services and bookable slots." },
+  { title: "服務與時段 — Barberly" },
+  { name: "description", content: "管理你的服務項目和可預約時段。" },
 ];
 
 // /shop/bookings: per-barber service & price editor + slot publisher.
@@ -50,7 +50,7 @@ export default function ShopBookings() {
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <p className="text-sm text-muted-foreground">載入中…</p>
         ) : !ready || !barber ? (
           <div className="rounded-3xl border bg-card p-8 text-center">
             <p className="text-muted-foreground">

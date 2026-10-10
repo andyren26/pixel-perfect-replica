@@ -137,7 +137,7 @@ export default function PhotoCarousel({ photos, barberName }: Props) {
                   <button
                     type="button"
                     onClick={() => step(-1)}
-                    aria-label="Previous photo"
+                    aria-label="上一張"
                     className="absolute top-1/2 left-3 -translate-y-1/2 rounded-full bg-card/90 p-2"
                   >
                     <ChevronLeft className="h-5 w-5" />
@@ -145,7 +145,7 @@ export default function PhotoCarousel({ photos, barberName }: Props) {
                   <button
                     type="button"
                     onClick={() => step(1)}
-                    aria-label="Next photo"
+                    aria-label="下一張"
                     className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full bg-card/90 p-2"
                   >
                     <ChevronRight className="h-5 w-5" />

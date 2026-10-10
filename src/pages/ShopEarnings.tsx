@@ -16,8 +16,8 @@ import type { Session } from "@/lib/profile";
 import { cardCls } from "@/lib/ui";
 
 const head = [
-  { title: "Earnings — Barberly" },
-  { name: "description", content: "Your shop's earnings and payouts on Barberly." },
+  { title: "收入 — Barberly" },
+  { name: "description", content: "你的理髮店在 Barberly 的收入與撥款紀錄。" },
 ];
 
 // /shop/earnings — read-only mirror for the signed-in shop (all its barbers combined).
@@ -94,7 +94,7 @@ export default function ShopEarnings() {
         {error ? (
           <p className="text-sm text-destructive">{errMessage(error)}</p>
         ) : loading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <p className="text-sm text-muted-foreground">載入中…</p>
         ) : (
           <>
             <section className={cardCls}>

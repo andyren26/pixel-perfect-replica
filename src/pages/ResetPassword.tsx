@@ -4,11 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useHead } from "@/hooks/use-head";
 import { getSession, homePathForRole, safeNext } from "@/lib/profile";
 import { authInputClass, authPrimaryButtonClass } from "@/lib/ui";
+import { authErrorText } from "@/lib/authErrors";
 import { Shell } from "@/pages/Auth";
 
 const head = [
-  { title: "Choose a new password — Barberly" },
-  { name: "description", content: "Set a new password for your Barberly account." },
+  { title: "設定新密碼 — Barberly" },
+  { name: "description", content: "為你的 Barberly 帳號設定新密碼。" },
 ];
 
 // Landing page for the reset-password email link. Supabase signs the user in
@@ -35,11 +36,11 @@ export default function ResetPasswordPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (password !== confirm) return setError("The two passwords don't match.");
+    if (password !== confirm) return setError("兩次輸入的密碼不一樣。");
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
-    if (error) return setError(error.message);
+    if (error) return setError(authErrorText(error.message));
     const session = await getSession();
     navigate(next ?? (session ? homePathForRole(session.profile.role) : "/barbers"), {
       replace: true,
@@ -48,18 +49,18 @@ export default function ResetPasswordPage() {
 
   return (
     <Shell>
-      <h1 className="text-center text-3xl">Choose a new password</h1>
+      <h1 className="text-center text-3xl">設定新密碼</h1>
       {ready === "checking" && (
-        <p className="mt-6 text-center text-sm text-muted-foreground">Checking your link…</p>
+        <p className="mt-6 text-center text-sm text-muted-foreground">正在確認連結…</p>
       )}
       {ready === "invalid" && (
         <div className="mt-6 text-center text-sm">
-          <p>This reset link is invalid or has expired.</p>
+          <p>這個重設連結無效或已經過期。</p>
           <Link
             to="/forgot-password"
             className="mt-4 inline-block font-medium underline underline-offset-4"
           >
-            Send a new link
+            重新寄送連結
           </Link>
         </div>
       )}
@@ -69,7 +70,7 @@ export default function ResetPasswordPage() {
             type="password"
             required
             minLength={6}
-            placeholder="New password"
+            placeholder="新密碼（至少 6 個字元）"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={authInputClass}
@@ -78,14 +79,14 @@ export default function ResetPasswordPage() {
             type="password"
             required
             minLength={6}
-            placeholder="Confirm new password"
+            placeholder="再輸入一次新密碼"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             className={authInputClass}
           />
           {error && <p className="text-sm text-destructive">{error}</p>}
           <button disabled={loading} className={authPrimaryButtonClass}>
-            {loading ? "Please wait…" : "Update password"}
+            {loading ? "處理中…" : "更新密碼"}
           </button>
         </form>
       )}

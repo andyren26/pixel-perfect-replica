@@ -9,10 +9,10 @@ import { formatMoney, usePlatformSettings } from "@/lib/platform";
 import type { Session } from "@/lib/profile";
 
 const head = [
-  { title: "Find a barber — Barberly" },
-  { name: "description", content: "Browse barbers, see their work, and book a slot." },
-  { property: "og:title", content: "Find a barber — Barberly" },
-  { property: "og:description", content: "Browse barbers, see their work, and book a slot." },
+  { title: "找理髮師 — Barberly" },
+  { name: "description", content: "瀏覽理髮師、看作品照，線上預約時段。" },
+  { property: "og:title", content: "找理髮師 — Barberly" },
+  { property: "og:description", content: "瀏覽理髮師、看作品照，線上預約時段。" },
   { property: "og:type", content: "website" },
   { name: "twitter:card", content: "summary" },
 ];
@@ -52,7 +52,7 @@ export default function Barbers() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="搜尋理髮師名稱或地址 / Search by name or address"
               className="w-full bg-transparent text-sm outline-none"
-              aria-label="Search barbers"
+              aria-label="搜尋理髮師"
             />
           </div>
           <div className="mt-5 flex flex-wrap justify-center gap-2" role="tablist">
@@ -144,7 +144,7 @@ export default function Barbers() {
                         <p className="mt-4 text-sm">
                           {from !== null ? (
                             <>
-                              from <strong>{formatMoney(from, settings)}</strong>
+                              <strong>{formatMoney(from, settings)}</strong> 起
                             </>
                           ) : (
                             <span className="text-muted-foreground">服務即將上架</span>

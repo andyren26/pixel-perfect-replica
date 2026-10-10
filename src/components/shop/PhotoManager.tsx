@@ -136,7 +136,7 @@ export default function PhotoManager({ barberId }: { barberId: string }) {
               <div className="relative">
                 <img
                   src={photoUrl(p.storage_path)}
-                  alt={p.caption ?? "Hairstyle photo"}
+                  alt={p.caption ?? "作品照"}
                   className="aspect-square w-full object-cover"
                   loading="lazy"
                 />
@@ -168,7 +168,7 @@ export default function PhotoManager({ barberId }: { barberId: string }) {
                   <span className="flex gap-1">
                     <button
                       type="button"
-                      aria-label="Move left"
+                      aria-label="往左移"
                       disabled={i === 0}
                       onClick={() => move(i, -1)}
                       className="rounded-full px-2 py-1 text-xs hover:bg-secondary disabled:opacity-30"
@@ -177,7 +177,7 @@ export default function PhotoManager({ barberId }: { barberId: string }) {
                     </button>
                     <button
                       type="button"
-                      aria-label="Move right"
+                      aria-label="往右移"
                       disabled={i === photos.length - 1}
                       onClick={() => move(i, 1)}
                       className="rounded-full px-2 py-1 text-xs hover:bg-secondary disabled:opacity-30"

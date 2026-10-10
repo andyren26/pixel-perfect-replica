@@ -15,8 +15,8 @@ import { isOnboarded, type Session } from "@/lib/profile";
 import { cardCls, ghostBtn, primaryBtn } from "@/lib/ui";
 
 const head = [
-  { title: "My shop — Barberly" },
-  { name: "description", content: "Set up your barber shop on Barberly." },
+  { title: "我的理髮店 — Barberly" },
+  { name: "description", content: "在 Barberly 設定你的理髮店。" },
 ];
 
 type Barber = Tables<"barbers">;
@@ -91,7 +91,7 @@ export default function ShopOnboarding() {
             </div>
           )}
           {isLoading ? (
-            <p className="mt-6 text-sm text-muted-foreground">Loading…</p>
+            <p className="mt-6 text-sm text-muted-foreground">載入中…</p>
           ) : barbers.length === 0 && !adding ? (
             <p className="mt-6 text-sm text-muted-foreground">
               還沒有理髮師。一間店可以有很多位理髮師 / A shop can run many barbers.

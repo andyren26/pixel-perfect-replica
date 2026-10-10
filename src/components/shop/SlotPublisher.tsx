@@ -215,7 +215,7 @@ export default function SlotPublisher({ barberId }: { barberId: string }) {
                   >
                     <input
                       type="time"
-                      aria-label="Slot start time"
+                      aria-label="時段開始時間"
                       step={slotMinutes * 60}
                       defaultValue={fmtTime(s.starts_at)}
                       onBlur={(e) =>
@@ -226,7 +226,7 @@ export default function SlotPublisher({ barberId }: { barberId: string }) {
                     <span className="text-muted-foreground">– {fmtTime(s.ends_at)}</span>
                     <button
                       type="button"
-                      aria-label="Delete slot"
+                      aria-label="刪除時段"
                       onClick={() => removeSlots([s.id])}
                       className="rounded-full px-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     >

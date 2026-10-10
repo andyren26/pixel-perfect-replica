@@ -120,7 +120,7 @@ export default function BookingDialog({
     });
     if (error || !bookingId) {
       setBusy(false);
-      setError(errMessage(error, "Could not complete the booking."));
+      setError(errMessage(error, "預約沒有完成，請再試一次。"));
       onBooked(); // refresh availability: someone may have just taken these slots
       return;
     }
@@ -132,7 +132,7 @@ export default function BookingDialog({
       onOpenChange(false);
       onBooked();
       toast.error(
-        `${errMessage(e, "Could not start payment.")} 預約已保留，可到「我的預約」付款 / Your booking is held — pay from My bookings.`,
+        `${errMessage(e, "無法開始付款。")} 預約已保留，可到「我的預約」付款 / Your booking is held — pay from My bookings.`,
       );
     }
   }

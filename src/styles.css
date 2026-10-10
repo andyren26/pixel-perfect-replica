@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-serif: "Bodoni Moda", "Didot", Georgia, serif;
-  --font-sans: "Jost", system-ui, sans-serif;
+  /* Latin glyphs come from Bodoni/Jost; Chinese falls through to the Noto TC faces. */
+  --font-serif: "Bodoni Moda", "Didot", Georgia, "Noto Serif TC", serif;
+  --font-sans: "Jost", system-ui, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

@@ -30,7 +30,7 @@ export default function AppHeader({ email, profile, children }: Props) {
     setBusy(false);
     if (error || data !== "shop") {
       setConfirming(false);
-      toast.error(errMessage(error, "Could not upgrade this account."));
+      toast.error(errMessage(error, "無法把這個帳號改成店家。"));
       return;
     }
     navigate("/shop", { replace: true });
@@ -78,12 +78,12 @@ export default function AppHeader({ email, profile, children }: Props) {
       <div className="ml-auto flex items-center gap-3 text-sm">
         {profile ? (
           <>
-            <span className="hidden sm:inline">Hi {email}</span>
+            <span className="hidden sm:inline">嗨，{email || profile.display_name || "會員"}</span>
             {isShop && (
-              <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">barber</span>
+              <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">店家</span>
             )}
             {isAdmin && (
-              <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">admin</span>
+              <span className="rounded-full bg-accent px-3 py-0.5 text-xs font-medium">管理員</span>
             )}
             {children}
             {isCustomer &&
@@ -96,7 +96,7 @@ export default function AppHeader({ email, profile, children }: Props) {
                     disabled={busy}
                     className="rounded-full bg-primary px-4 py-1 font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
                   >
-                    {busy ? "Please wait…" : "確定開店"}
+                    {busy ? "處理中…" : "確定開店"}
                   </button>
                   <button
                     onClick={() => setConfirming(false)}
@@ -118,7 +118,7 @@ export default function AppHeader({ email, profile, children }: Props) {
               onClick={signOut}
               className="rounded-full bg-primary px-5 py-2 text-primary-foreground hover:opacity-90"
             >
-              Sign Out
+              登出
             </button>
           </>
         ) : (
@@ -126,7 +126,7 @@ export default function AppHeader({ email, profile, children }: Props) {
             to={signInPath(pathname)}
             className="rounded-full bg-primary px-6 py-2 font-medium text-primary-foreground hover:opacity-90"
           >
-            Login
+            登入
           </Link>
         )}
       </div>
