@@ -30,12 +30,15 @@ export function usePlatformSettings() {
 // Prices are stored as whole integers in platform_settings.currency (no x100).
 export function formatMoney(amount: number, settings: PlatformSettings = FALLBACK): string {
   try {
-    return new Intl.NumberFormat("zh-TW", {
+    const currency = settings.currency.toUpperCase();
+    const text = new Intl.NumberFormat("zh-TW", {
       style: "currency",
-      currency: settings.currency.toUpperCase(),
+      currency,
       minimumFractionDigits: settings.currency_minor_units,
       maximumFractionDigits: settings.currency_minor_units,
     }).format(amount);
+    // zh-TW renders TWD as a bare "$"; spell it NT$ so it isn't read as US dollars.
+    return currency === "TWD" ? text.replace(/^(-?)\$/, "$1NT$") : text;
   } catch {
     return `${amount} ${settings.currency.toUpperCase()}`;
   }
