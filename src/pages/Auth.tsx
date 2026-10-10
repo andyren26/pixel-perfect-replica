@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useHead } from "@/hooks/use-head";
-import { getSession, homePathForRole, safeNext } from "@/lib/profile";
+import { getSession, homePathForRole, nextQuery, safeNext } from "@/lib/profile";
 import {
   SOCIAL_PROVIDERS,
   asProvider,
@@ -27,10 +27,14 @@ const head = [
 export default function AuthPage() {
   useHead(head);
   const navigate = useNavigate();
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const [params] = useSearchParams();
   // Where to return after auth (e.g. the barber page whose Book button sent us here).
   const next = safeNext(params.get("next"));
+  // Only ?next= is carried between auth pages and into redirect URLs. Anything
+  // else (notably a previous attempt's ?error=…) must not ride along: supabase-js
+  // treats an `error` param on the return URL as a failure and drops the session.
+  const search = nextQuery(next);
   const mode: "signin" | "signup" =
     pathname.replace(/\/+$/, "") === "/sign-up" ? "signup" : "signin";
   const setMode = (m: "signin" | "signup") =>
@@ -45,6 +49,13 @@ export default function AuthPage() {
   const [providers, setProviders] = useState<Set<SocialProviderId>>(new Set());
 
   useEffect(() => {
+    // A failed social sign-in comes back as ?error_description=…: show it once,
+    // then drop it from the address bar so a retry starts clean.
+    const failed = params.get("error_description") ?? params.get("error");
+    if (failed) {
+      setError(failed);
+      navigate(pathname + search, { replace: true });
+    }
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) goHome();
     });

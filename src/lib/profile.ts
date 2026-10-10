@@ -33,6 +33,9 @@ export function safeNext(next: string | null | undefined): string | null {
   return next;
 }
 
+// "?next=…" for a safe return path, else "" — the only query auth pages pass along.
+export const nextQuery = (next: string | null) => (next ? `?next=${encodeURIComponent(next)}` : "");
+
 export const signInPath = (next?: string) =>
   next ? `/sign-in?next=${encodeURIComponent(next)}` : "/sign-in";
 

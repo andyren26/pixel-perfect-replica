@@ -1,7 +1,8 @@
-import { Link, useLocation } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useHead } from "@/hooks/use-head";
+import { nextQuery, safeNext } from "@/lib/profile";
 import { authInputClass, authPrimaryButtonClass } from "@/lib/ui";
 import { Shell } from "@/pages/Auth";
 
@@ -12,7 +13,8 @@ const head = [
 
 export default function ForgotPasswordPage() {
   useHead(head);
-  const { search } = useLocation();
+  const [params] = useSearchParams();
+  const search = nextQuery(safeNext(params.get("next")));
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
