@@ -19,6 +19,8 @@ describe("App routing", () => {
     ["/app", "app"],
     ["/sign-in", "sign-in"],
     ["/sign-up", "sign-up"],
+    ["/forgot-password", "forgot-password"],
+    ["/reset-password", "reset-password"],
     ["/shop", "shop"],
     ["/shop/bookings", "shop/bookings"],
     ["/shop/earnings", "shop/earnings"],

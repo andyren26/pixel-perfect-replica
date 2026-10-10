@@ -12,3 +12,9 @@ export const dangerBtn =
 export const cardCls = "rounded-3xl border bg-card p-6 md:p-8";
 export const labelCls = "mb-1.5 block text-sm font-medium";
 export const hintCls = "mt-1 text-xs text-muted-foreground";
+
+// The sign-in / sign-up / password-reset screens.
+export const authInputClass =
+  "w-full rounded-full border bg-background px-5 py-3 text-sm outline-none focus:border-ring";
+export const authPrimaryButtonClass =
+  "w-full rounded-full bg-primary py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-60";

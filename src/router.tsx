@@ -9,6 +9,8 @@ import {
 
 import Index from "@/pages/Index";
 import AuthPage from "@/pages/Auth";
+import ForgotPasswordPage from "@/pages/ForgotPassword";
+import ResetPasswordPage from "@/pages/ResetPassword";
 import Barbers from "@/pages/Barbers";
 import BarberDetail from "@/pages/BarberDetail";
 import MyBookings from "@/pages/MyBookings";
@@ -78,6 +80,8 @@ export const routes: RouteObject[] = [
           { path: "sign-up", element: null },
         ],
       },
+      { path: "forgot-password", element: <ForgotPasswordPage /> },
+      { path: "reset-password", element: <ResetPasswordPage /> },
       { path: "barbers", loader: optionalSession, element: <Barbers /> },
       { path: "barbers/:id", loader: optionalSession, element: <BarberDetail /> },
       { path: "bookings", loader: customerLoader, element: <MyBookings /> },
